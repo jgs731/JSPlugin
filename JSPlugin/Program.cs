@@ -4,6 +4,6 @@ namespace JSPlugin
 {
     public class Program
     {
-       
+                
     }
 }

@@ -7,9 +7,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\AudioPlugSharp\AudioPlugSharp\AudioPlugSharp.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\AudioPlugSharp\AudioPlugSharp\AudioPlugSharp.csproj" />
+  </ItemGroup>
 
 	<ItemGroup>
 	  <Compile Update="Properties\Settings.Designer.cs">
