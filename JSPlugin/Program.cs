@@ -17,25 +17,63 @@ namespace JSPlugin
             PluginID = 0x94477AF90D2F50BD;
         }
 
-        AudioIOPort monoInput;
         AudioIOPort monoOutput;
+        AudioPluginParameter waveformParameter;
+
+        double noteVolume = 0;
+        double desiredNoteVolume = 0;
+        double frequency = 0;
+        long samplesSoFar = 0;
 
         public override void Initialize()
         {
             base.Initialize();
 
-            InputPorts = new AudioIOPort[] { monoInput = new AudioIOPort("Mono Input", EAudioChannelConfiguration.Mono) };
             OutputPorts = new AudioIOPort[] { monoOutput = new AudioIOPort("Mono Output", EAudioChannelConfiguration.Mono) };
 
-            AddParameter(new AudioPluginParameter
-            {
-                // Add first parameter from document for JSPlugin
-            });
+            //AddParameter(waveformParameter = new AudioPluginParameter
+            //{
+            //    ID = "Waveform",
+            //    Type = EAudioPlug inParameterType.Int,
+            //    MinValue = 1,
+            //    MaxValue = 4,
+            //    DefaultValue = 1,
+            //    ValueFormat = "{0:0.0}dB"
+            //});
+        }
+
+        public override void HandleNoteOn(int noteNumber, float velocity, int sampleOffset)
+        {
+            frequency = Math.Pow(2, 1.0 / 12.0) * 432;
+            desiredNoteVolume = velocity * 0.25f;
+        }
+
+        public override void HandleNoteOff(int noteNumber, float velocity, int sampleOffset)
+        {
+            desiredNoteVolume = 0;
         }
 
         public override void Process()
         {
             base.Process();
+            
+            int currentSample = 0;
+            int nextSample = 0;
+            double[] outSamples = monoOutput.GetAudioBuffers()[0];
+
+            nextSample = Host.ProcessEvents();
+
+            do {
+                for(int i = 0; i < nextSample; i++)
+                {
+                    outSamples[i] = Math.Sin((double)samplesSoFar * 2 * Math.PI * frequency / Host.SampleRate) * noteVolume;
+                    samplesSoFar++;
+                }
+                currentSample = nextSample;
+            }
+            while (nextSample < outSamples.Length);
+
+            monoOutput.WriteData();
         }
     }
 }
