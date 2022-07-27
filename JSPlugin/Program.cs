@@ -18,7 +18,7 @@ namespace JSPlugin
         }
 
         AudioIOPort monoOutput;
-        AudioPluginParameter waveformParameter;
+        //AudioPluginParameter waveformParameter;
 
         double noteVolume = 0;
         double desiredNoteVolume = 0;
@@ -44,13 +44,18 @@ namespace JSPlugin
 
         public override void HandleNoteOn(int noteNumber, float velocity, int sampleOffset)
         {
-            frequency = Math.Pow(2, 1.0 / 12.0) * 432;
+            frequency = Math.Pow(2, 1.0 / 12.0) * 440;
             desiredNoteVolume = velocity * 0.25f;
         }
 
         public override void HandleNoteOff(int noteNumber, float velocity, int sampleOffset)
         {
             desiredNoteVolume = 0;
+        }
+
+        double Lerp(double value1, double value2, double amount)
+        {
+            return value1 + (value2 - value1) * amount;
         }
 
         public override void Process()
@@ -63,9 +68,12 @@ namespace JSPlugin
 
             nextSample = Host.ProcessEvents();
 
-            do {
-                for(int i = 0; i < nextSample; i++)
+            do 
+            {
+                for(int i = currentSample; i < nextSample; i++)
                 {
+                    noteVolume = Lerp(noteVolume, desiredNoteVolume, 0.001);
+
                     outSamples[i] = Math.Sin((double)samplesSoFar * 2 * Math.PI * frequency / Host.SampleRate) * noteVolume;
                     samplesSoFar++;
                 }
