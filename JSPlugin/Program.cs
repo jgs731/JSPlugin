@@ -19,11 +19,14 @@ namespace JSPlugin
 
         AudioIOPort monoOutput;
         //AudioPluginParameter waveformParameter;
+        AudioPluginParameter attackParameter;
 
         double noteVolume = 0;
         double desiredNoteVolume = 0;
         double frequency = 0;
         long samplesSoFar = 0;
+        double attackRate = 1.0f;
+        long attackTimeDelay = 200; // in ms
 
         public override void Initialize()
         {
@@ -34,12 +37,23 @@ namespace JSPlugin
             //AddParameter(waveformParameter = new AudioPluginParameter
             //{
             //    ID = "Waveform",
-            //    Type = EAudioPlug inParameterType.Int,
+            //    Type = EAudioPluginParameterType.Int,
             //    MinValue = 1,
             //    MaxValue = 4,
             //    DefaultValue = 1,
             //    ValueFormat = "{0:0.0}dB"
             //});
+
+            AddParameter(attackParameter = new AudioPluginParameter
+            {
+                ID = "attack",
+                Name = "Attack",
+                Type = EAudioPluginParameterType.Float,
+                MinValue = 0,
+                MaxValue = 0.9,
+                DefaultValue = 0,
+                ValueFormat = "{0:0.0}dB"
+            });
         }
 
         public override void HandleNoteOn(int noteNumber, float velocity, int sampleOffset)
@@ -51,6 +65,11 @@ namespace JSPlugin
         public override void HandleNoteOff(int noteNumber, float velocity, int sampleOffset)
         {
             desiredNoteVolume = 0;
+        }
+
+        public override void HandleParameterChange(AudioPluginParameter parameter, double newNormalizedValue, int sampleOffset)
+        {
+            base.HandleParameterChange(parameter, newNormalizedValue, sampleOffset);
         }
 
         double Lerp(double value1, double value2, double amount)
@@ -72,9 +91,16 @@ namespace JSPlugin
             {
                 for(int i = currentSample; i < nextSample; i++)
                 {
+                    bool updateAttackParam = attackParameter.NeedInterpolationUpdate;
+                    
                     noteVolume = Lerp(noteVolume, desiredNoteVolume, 0.001);
 
-                    outSamples[i] = Math.Sin((double)samplesSoFar * 2 * Math.PI * frequency / Host.SampleRate) * noteVolume;
+                    if (updateAttackParam)
+                    {
+                        attackRate = attackParameter.GetInterpolatedProcessValue(i) / attackTimeDelay;
+                    }
+
+                    outSamples[i] = Math.Sin((double)samplesSoFar * 2 * Math.PI * frequency / Host.SampleRate) * noteVolume * attackRate;
                     samplesSoFar++;
                 }
                 currentSample = nextSample;
