@@ -14,7 +14,7 @@ namespace JSPlugin
             PluginVersion = "1.0.0";
 
             // Unique 64bit ID for the plugin
-            PluginID = 0x94477AF90D2F50BD;
+            PluginID = 0x98977AF90D2F50BD;
         }
 
         AudioIOPort monoOutput;
@@ -46,11 +46,11 @@ namespace JSPlugin
 
             AddParameter(attackParameter = new AudioPluginParameter
             {
-                ID = "attack",
+                ID = "Attack",
                 Name = "Attack",
-                Type = EAudioPluginParameterType.Float,
+                Type = EAudioPluginParameterType.Int,
                 MinValue = 0,
-                MaxValue = 0.9,
+                MaxValue = 0.99,
                 DefaultValue = 0,
                 ValueFormat = "{0:0.0}dB"
             });
@@ -100,7 +100,7 @@ namespace JSPlugin
                         attackRate = attackParameter.GetInterpolatedProcessValue(i) / attackTimeDelay;
                     }
 
-                    outSamples[i] = Math.Sin((double)samplesSoFar * 2 * Math.PI * frequency / Host.SampleRate) * noteVolume * attackRate;
+                    outSamples[i] = Math.Sin((double)samplesSoFar * 2 * Math.PI * frequency / Host.SampleRate) * noteVolume + attackRate;
                     samplesSoFar++;
                 }
                 currentSample = nextSample;
