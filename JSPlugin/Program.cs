@@ -58,7 +58,7 @@ namespace JSPlugin
 
         public override void HandleNoteOn(int noteNumber, float velocity, int sampleOffset)
         {
-            frequency = Math.Pow(2, 1.0 / 12.0) * 440;
+            frequency = Math.Pow(2, (noteNumber - 45) / 12.0) * 440;
             desiredNoteVolume = velocity * 0.25f;
         }
 
