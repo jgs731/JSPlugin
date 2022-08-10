@@ -84,6 +84,7 @@ namespace JSPlugin
             int currentSample = 0;
             int nextSample = 0;
             double[] outSamples = monoOutput.GetAudioBuffers()[0];
+            double attack = GetParameter("Attack").ProcessValue;
 
             nextSample = Host.ProcessEvents();
 
@@ -100,7 +101,7 @@ namespace JSPlugin
                         attackRate = attackParameter.GetInterpolatedProcessValue(i) / attackTimeDelay;
                     }
 
-                    outSamples[i] = Math.Sin((double)samplesSoFar * 2 * Math.PI * frequency / Host.SampleRate) * noteVolume + attackRate;
+                    outSamples[i] = (Math.Sin((double)samplesSoFar * 2 * Math.PI * frequency / Host.SampleRate) + attackRate) * noteVolume;
                     samplesSoFar++;
                 }
                 currentSample = nextSample;
