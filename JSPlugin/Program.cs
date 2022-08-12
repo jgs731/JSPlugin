@@ -15,6 +15,10 @@ namespace JSPlugin
 
             // Unique 64bit ID for the plugin
             PluginID = 0x98977AF90D2F50BD;
+
+            HasUserInterface = true;
+            EditorWidth = 200;
+            EditorHeight = 100;
         }
 
         AudioIOPort monoOutput;
